@@ -11,6 +11,6 @@
         <key>Kernel</key>
         <string>MACH_KERNEL</string>
         <key>Kernel Flags</key>
-        <string>boot=/dev/sdb1 disk=/dev/sdb3 quiet BOOT_IMAGE=MACH_KERNEL SYSTEM_IMAGE=SYSTEM</string>
+        <string>boot=/dev/sdb1 disk=/dev/sdb3 quiet tty BOOT_IMAGE=MACH_KERNEL SYSTEM_IMAGE=SYSTEM</string>
 </dict>
 </plist>
