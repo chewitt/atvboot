@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ################################################################################
-#  This file is part of OpenELEC - http://www.openelec.tv
-#  Copyright (C) 2011-2016 Christian Hewitt (chewitt@openelec.tv)
+#  This file is part of LibreELEC - https://libreelec.tv
+#  Copyright (C) 2011-2016 Christian Hewitt (chewitt@libreelec.tv)
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 #  GNU General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with OpenELEC.tv; see the file COPYING.  If not, write to
+#  along with LibreELEC; see the file COPYING.  If not, write to
 #  the Free Software Foundation, 51 Franklin Street, Suite 500, Boston, MA 02110, USA.
 #  http://www.gnu.org/copyleft/gpl.html
 ################################################################################
@@ -52,7 +52,7 @@ check_bootdevice(){
   SDB=$(ls /dev/sdb)
   BOOTDEVICE=$(grep /mnt/rootfs /proc/mounts | awk '{print $1}' | sed 's/[0-9]//g')
   if [ -n "${SDA}" ] && [ -n "${SDB}" ]; then
-	# AppleTV has USB and HDD devices
+    # AppleTV has USB and HDD devices
     if [ "${BOOTDEVICE}" = "/dev/sda" ]; then
       # AppleTV has a SATA adapter the kernel recognises slowly
       USB="/dev/sda"
@@ -76,16 +76,16 @@ banner(){
   echo ""
   echo ""
   echo ""
-  echo "        ********************************************************************************"
-  echo "        *                                                                              *"
+  echo "        *********************************************************************************"
+  echo "        *                                                                               *"
   case $FUNCTION in
-    factoryrestore) echo "        *                       OpenELEC AppleTV Factory Restore                       *" ;;
-    update)         echo "        *                            OpenELEC AppleTV Updater                          *" ;;
-    emergency)      echo "        *                        OpenELEC AppleTV Emergency Boot                       *" ;;
-    *)              echo "        *                           OpenELEC AppleTV Installer                         *" ;;
+    factoryrestore) echo "        *                       LibreELEC AppleTV Factory Restore                       *" ;;
+    update)         echo "        *                            LibreELEC AppleTV Updater                          *" ;;
+    emergency)      echo "        *                        LibreELEC AppleTV Emergency Boot                       *" ;;
+    *)              echo "        *                           LibreELEC AppleTV Installer                         *" ;;
   esac
-  echo "        *                                                                              *"
-  echo "        ********************************************************************************"
+  echo "        *                                                                               *"
+  echo "        *********************************************************************************"
   echo ""
 }
 
@@ -120,12 +120,12 @@ prepare(){
     *)
       if [ ! -f /mnt/rootfs/MACH_KERNEL ] && [ ! -f /mnt/rootfs/SYSTEM ]; then
         network
-        DOWNLOAD=$(wget -qO- "http://update.openelec.tv/updates.php?i=INSTALLER&d=OpenELEC&pa=ATV.i386&v=3.1.0" | \
+        DOWNLOAD=$(wget -qO- "http://update.libreelec.tv/updates.php?i=INSTALLER&d=LibreELEC&pa=ATV.i386&v=7.0.0" | \
                    sed -e 's/^.*"update":"\([^"]*\)".*$/\1/' | grep ATV)
         echo ""
         echo "        INFO: Downloading ${DOWNLOAD}"
         echo ""
-        wget -O /mnt/rootfs/"${DOWNLOAD}" http://releases.openelec.tv/"${DOWNLOAD}"
+        wget -O /mnt/rootfs/"${DOWNLOAD}" http://releases.libreelec.tv/"${DOWNLOAD}"
         tar -xvf /mnt/rootfs/"${DOWNLOAD}" -C /mnt/rootfs 1>&3 2>&4
 	FOLDER=$(echo "${DOWNLOAD}" | sed 's/.tar//g')
         mv /mnt/rootfs/"${FOLDER}"/target/MACH_KERNEL /mnt/rootfs/ 1>&3 2>&4
@@ -159,7 +159,7 @@ create_target(){
 
 create_boot(){
   echo "        INFO: Creating BOOT Partition"
-  parted -s "${TARGET}" mkpart primary HFS 40s 350M 1>&3 2>&4
+  parted -s "${TARGET}" mkpart primary HFS 40s 512M 1>&3 2>&4
   parted -s "${TARGET}" set 1 atvrecv on 1>&3 2>&4
   parted -s "${TARGET}" name 1 'BOOT' 1>&3 2>&4
   disk_sync
@@ -171,7 +171,7 @@ create_boot(){
 
 create_boot_usb(){
   echo "        INFO: Creating BOOT Partition"
-  parted -s "${TARGET}" mkpart primary HFS 40s 716766s 1>&3 2>&4
+  parted -s "${TARGET}" mkpart primary HFS 40s 1048542s 1>&3 2>&4
   parted -s "${TARGET}" set 1 atvrecv on 1>&3 2>&4
   parted -s "${TARGET}" name 1 'BOOT' 1>&3 2>&4
   disk_sync
@@ -181,7 +181,7 @@ create_swap(){
   echo "        INFO: Creating SWAP Partition"
   P1_END=$(parted -s "${TARGET}" unit s print | grep BOOT | awk '{print $3}' | sed 's/s//g')
   P2_START=$(( P1_END + 1 ))
-  parted -s "${TARGET}" mkpart primary linux-swap "${P2_START}"s 862M 1>&3 2>&4
+  parted -s "${TARGET}" mkpart primary linux-swap "${P2_START}"s 1024M 1>&3 2>&4
   parted -s "${TARGET}" name 2 'SWAP' 1>&3 2>&4
   mkswap "${TARGET}"2 1>&3 2>&4
   disk_sync
@@ -205,9 +205,9 @@ create_storage(){
 install_hdd(){
   TARGET=${HDD}
   echo ""
-  echo "        WARN: Continuing with installation will replace the original Apple OS or current"
-  echo "              Linux OS on the AppleTV's internal hard drive with OpenELEC. If you do not"
-  echo "              want installation to contine please POWER OFF your AppleTV within the next"
+  echo "        WARN: Continuing with installation will replace your original Apple OS or current"
+  echo "              Linux OS on the AppleTV's internal hard drive with LibreELEC. If you do not"
+  echo "              want installation to contine please POWER OFF! your AppleTV within the next"
   echo "              30 seconds and remove the USB key."
   sleep 30
   create_target
@@ -298,9 +298,9 @@ update(){
 factoryrestore(){
   DISKSIZE=$(parted -s ${HDD} unit s print | grep "Disk ${HDD}:" | awk '{print $3}' | sed 's/s//g')
   SECTORS=$(( DISKSIZE - 262145 ))
-  echo "        WARN: Continuing with restore will erase OpenELEC from the internal HDD of your"
+  echo "        WARN: Continuing with restore will erase LibreELEC from the internal HDD of your"
   echo "              AppleTV and will reinstall AppleOS files to prepare for a factory-restore"
-  echo "              boot. To abort the restore, POWER OFF your AppleTV in the next 30 seconds"
+  echo "              boot. To abort the restore, POWER OFF! your AppleTV in the next 30 seconds"
   echo ""
   sleep 30
   echo "        INFO: Creating GPT Scheme"
@@ -352,7 +352,7 @@ emergency(){
 cleanup(){
   disk_sync
   sleep 2
-  for i in `find /tmp -name mounts.*` ; do 
+  for i in `find /tmp -name mounts.*` ; do
     umount $i
     sleep 2
   done
