@@ -7,7 +7,7 @@
         <key>Boot Fail Logo</key>
         <string></string>
         <key>Boot Logo</key>
-        <string>BootLogoSwiss.png</string>
+        <string>BootLogo.png</string>
         <key>Kernel</key>
         <string>mach_kernel</string>
         <key>Kernel Flags</key>
